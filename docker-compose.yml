@@ -1,0 +1,41 @@
+version: "3.8"
+services:
+  mongodb:
+    container_name: "mongo"
+    image: "mongo"
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-dev:/data/db
+    env_file:
+      - ./config/development.env
+  server:
+    container_name: "server"
+    build: ./server
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    env_file:
+      - ./config/development.env
+    depends_on: 
+      - mongodb
+  client:
+    container_name: "client"
+    build: ./client
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client/src:/app/src
+      - /app/node_modules
+    env_file:
+      - ./config/development.env
+    depends_on:
+      - mongodb
+      - server
+volumes:
+  mongo-dev:
+    driver: local
+
+# compose uses his own network and automaticly generates new one for all images

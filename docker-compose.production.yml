@@ -1,0 +1,37 @@
+version: "3.8"
+services:
+  mongodb:
+    container_name: "mongo"
+    image: "mongo"
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-prod:/data/db
+    env_file:
+      - ./config/production.env
+  server:
+    container_name: "server"
+    build:
+      context: ./server
+      dockerfile: Dockerfile.production
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./config/production.env
+    depends_on: 
+      - mongodb
+  client:
+    container_name: "client"
+    build:
+      context: ./client
+      dockerfile: Dockerfile.production
+    ports:
+      - "80:80"
+    env_file:
+      - ./config/production.env
+    depends_on:
+      - mongodb
+      - server
+volumes:
+  mongo-prod:
+    driver: local
